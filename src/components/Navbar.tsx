@@ -26,7 +26,6 @@ export default function Navbar() {
     { name: "Home", href: "/#home" },
     { name: "Projects", href: "/#projects" },
     { name: "Lifecycle", href: "/#lifecycle" },
-    { name: "API Docs", href: "/#api-docs" },
   ];
 
   const isActive = (path: string) => {

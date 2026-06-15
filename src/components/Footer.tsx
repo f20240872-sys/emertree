@@ -19,8 +19,8 @@ export default function Footer() {
       { name: "Monitoring Ledger", href: "/dashboard/monitoring" },
     ],
     resources: [
-      { name: "Developer API", href: "/#api-docs" },
-      { name: "Documentation", href: "/#api-docs" },
+      { name: "Developer API", href: "/#features" },
+      { name: "Platform Features", href: "/#features" },
       { name: "ESG Reporting Docs", href: "/#" },
       { name: "Carbon Guidelines", href: "/#" },
     ],

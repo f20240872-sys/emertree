@@ -91,7 +91,7 @@ export default function DashboardLayout({
             const LinkIcon = link.icon;
             return (
               <Link
-                key={link.id || link.name}
+                key={link.name}
                 href={link.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`w-full flex items-center p-3 rounded-xl border text-left transition-all ${isActive(link.href)

@@ -3,21 +3,21 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  TreePine, 
-  Users, 
-  Building2, 
-  Coins, 
-  Map, 
-  TrendingUp, 
-  FileCheck, 
-  Check, 
-  ArrowRight, 
-  Download, 
-  MapPin, 
-  Globe, 
-  Layers, 
-  Zap, 
+import {
+  TreePine,
+  Users,
+  Building2,
+  Coins,
+  Map,
+  TrendingUp,
+  FileCheck,
+  Check,
+  ArrowRight,
+  Download,
+  MapPin,
+  Globe,
+  Layers,
+  Zap,
   Sparkles,
   ChevronRight,
   Database,
@@ -31,142 +31,11 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Mock Data for India Plantation Network Map
-interface ProjectCluster {
-  id: string;
-  name: string;
-  region: string;
-  x: number; // SVG X percentage
-  y: number; // SVG Y percentage
-  treesPlanted: string;
-  farmersCount: number;
-  carbonOffset: string;
-  species: string[];
-  ecosystem: string;
-}
 
-interface ApiEndpoint {
-  id: string;
-  method: "GET" | "POST";
-  path: string;
-  description: string;
-  auth: string;
-  fields: string[];
-  response: string;
-}
-
-const projectClusters: ProjectCluster[] = [
-  {
-    id: "himalayas",
-    name: "Himalayan Foothills Initiative",
-    region: "Uttarakhand & Himachal Pradesh",
-    x: 45,
-    y: 18,
-    treesPlanted: "624,800",
-    farmersCount: 2180,
-    carbonOffset: "14,990 tCO2e/yr",
-    species: ["Himalayan Cedar", "Oak", "Deodar Pine"],
-    ecosystem: "Post-Wildfire & Soil Stabilization"
-  },
-  {
-    id: "aravali",
-    name: "Aravali Green Wall Project",
-    region: "Rajasthan & Haryana",
-    x: 35,
-    y: 32,
-    treesPlanted: "412,400",
-    farmersCount: 1650,
-    carbonOffset: "9,890 tCO2e/yr",
-    species: ["Khejri", "Babul", "Dhok"],
-    ecosystem: "Urban Forestry & Anti-Desertification"
-  },
-  {
-    id: "western-ghats",
-    name: "Western Ghats Biodiversity Corridor",
-    region: "Karnataka & Kerala",
-    x: 39,
-    y: 72,
-    treesPlanted: "910,220",
-    farmersCount: 5200,
-    carbonOffset: "22,800 tCO2e/yr",
-    species: ["Teak", "Rosewood", "Wild Jack", "Malabar Kino"],
-    ecosystem: "Agroforestry & Rainforest Conservation"
-  },
-  {
-    id: "sundarbans",
-    name: "Sundarbans Coastal Safeguard",
-    region: "West Bengal Delta",
-    x: 75,
-    y: 46,
-    treesPlanted: "534,500",
-    farmersCount: 3420,
-    carbonOffset: "11,260 tCO2e/yr",
-    species: ["Sundari Mangrove", "Gewa", "Kankra"],
-    ecosystem: "Mangrove Restoration & Coastal Defense"
-  },
-  {
-    id: "kelp-coast",
-    name: "Arabian Sea Kelp Meadows",
-    region: "Offshore Maharashtra & Gujarat",
-    x: 24,
-    y: 52,
-    treesPlanted: "310,000",
-    farmersCount: 890,
-    carbonOffset: "16,400 tCO2e/yr",
-    species: ["Brown Kelp", "Sea Grass", "Sargassum"],
-    ecosystem: "Kelp Ecosystems & Marine Carbon Capture"
-  }
-];
-
-const apiEndpoints: ApiEndpoint[] = [
-  {
-    id: "donations",
-    method: "POST",
-    path: "/v1/donations",
-    description: "Create a corporate sponsorship allocation and lock the Schedule VII compliance tag.",
-    auth: "Bearer Corporate API Key",
-    fields: ["corporateId", "projectId", "amount", "targetTreeCount"],
-    response: "donationId, escrowStatus, blockchainTx, complianceCode"
-  },
-  {
-    id: "trees",
-    method: "POST",
-    path: "/v1/trees",
-    description: "Register a planted sapling with geotags, species metadata, farmer assignment, and photo proof.",
-    auth: "Bearer NGO Partner Key",
-    fields: ["donationId", "farmerId", "latitude", "longitude", "speciesName"],
-    response: "treeId, ipfsHash, ledgerIndex, verified"
-  },
-  {
-    id: "impact-report",
-    method: "GET",
-    path: "/v1/impact-report",
-    description: "Retrieve verified totals, survival rates, active farmers, and carbon offset registers.",
-    auth: "Bearer Reader Key",
-    fields: ["corporateId", "includeAuditTrail"],
-    response: "totalTreesPlanted, verifiedSurvivalRate, carbonOffsetTotal"
-  },
-  {
-    id: "certificate",
-    method: "GET",
-    path: "/v1/certificate",
-    description: "Fetch signed impact certificates for board decks, audits, and public verification URLs.",
-    auth: "Bearer Corporate API Key",
-    fields: ["donationId", "format"],
-    response: "certificateId, signatureHash, publicVerificationUrl"
-  }
-];
 
 export default function LandingPage() {
-  const [selectedCluster, setSelectedCluster] = useState<ProjectCluster>(projectClusters[2]); // Western Ghats default
   const [treeGrowthStage, setTreeGrowthStage] = useState(0); // 0: Seed, 1: Sprout, 2: Sapling, 3: Mature, 4: Canopy
   const [activeStep, setActiveStep] = useState(0);
-  const [activeApi, setActiveApi] = useState<ApiEndpoint>(apiEndpoints[0]);
-  const [selectedReport, setSelectedReport] = useState<string | null>(null);
-  const [generatingReport, setGeneratingReport] = useState(false);
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [reportSuccess, setReportSuccess] = useState(false);
-  const [mapLayer, setMapLayer] = useState<"clusters" | "heatmap" | "satellite">("clusters");
 
   // Growth Simulator Data
   const growthStages = [
@@ -189,32 +58,6 @@ export default function LandingPage() {
     { title: "ESG Report Produced", desc: "Immutable reports sync directly into corporate compliance dashboards.", icon: FileCheck },
   ];
 
-  // Report download generator trigger
-  const handleGenerateReport = (type: string) => {
-    setSelectedReport(type);
-    setGeneratingReport(true);
-    setReportSuccess(false);
-    setGenerationProgress(0);
-  };
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (generatingReport) {
-      interval = setInterval(() => {
-        setGenerationProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setGeneratingReport(false);
-            setReportSuccess(true);
-            return 100;
-          }
-          return prev + 25;
-        });
-      }, 500);
-    }
-    return () => clearInterval(interval);
-  }, [generatingReport]);
-
   return (
     <div className="min-h-screen bg-white text-slate-900 selection:bg-emerald-100 selection:text-emerald-800">
       <Navbar />
@@ -227,20 +70,20 @@ export default function LandingPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
+
             {/* Left Hero Content */}
             <div className="lg:col-span-6 space-y-8 text-left">
               <div className="inline-flex items-center space-x-2 px-3 py-1 bg-emerald-50 border border-emerald-200/60 rounded-full text-xs font-semibold text-emerald-800">
                 <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
                 <span>India's Leading Enterprise ESG Afforestation Platform</span>
               </div>
-              
+
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
                 Plant. Track. Verify. <br />
                 <span className="text-gradient">Create Measurable</span> <br />
                 Environmental Impact.
               </h1>
-              
+
               <p className="text-base sm:text-lg text-slate-650 leading-relaxed max-w-xl">
                 Connect corporates, NGOs, and farmers through a transparent tree plantation ecosystem with real-time monitoring, ESG reporting, and blockchain-backed traceability.
               </p>
@@ -277,128 +120,96 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-
-            {/* Right Hero Content: India Plantation Network Map Interactive Preview */}
-            <div className="lg:col-span-6 bg-white p-6 rounded-2xl border border-slate-100 shadow-xl space-y-6">
-              <div className="flex justify-between items-center pb-2 border-b border-slate-150">
+            {/* Right Hero Content: Premium National Plantation Network Map Image Container */}
+            <div className="lg:col-span-6 relative rounded-2xl border border-slate-200 overflow-hidden bg-slate-950/5 p-2 shadow-xl group aspect-4/3 flex items-center justify-center">
+              <img
+                src="/india-map.png"
+                alt="National Plantation Network Map"
+                className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-[1.01]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
                 <div>
-                  <h3 className="font-bold text-slate-900">National Plantation Network Map</h3>
-                  <p className="text-xs text-slate-500">Click markers to check regional project statistics</p>
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1">Afforestation Ledger</span>
+                  <h3 className="text-lg font-bold text-white">National Plantation Network</h3>
+                  <p className="text-xxs text-slate-300 mt-0.5">Real-time GPS nodes & satellite verification mapping</p>
                 </div>
-                <div className="bg-emerald-50 px-2.5 py-1 rounded-full text-xs font-bold text-emerald-700 flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse mr-1.5"></span>
-                  Active Monitoring
-                </div>
-              </div>
-
-              {/* India SVG map with markers */}
-              <div className="relative h-96 w-full bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200">
-                {/* SVG Outline Map of India (Simplified representation) */}
-                <svg viewBox="0 0 100 100" className="h-full w-auto text-slate-200 fill-slate-100 stroke-slate-300 stroke-1">
-                  {/* Simplified India Path representation */}
-                  <path d="M45,5 L48,10 L50,8 L55,10 L58,15 L52,18 L50,22 L54,26 L48,30 L45,35 L42,30 L40,32 L38,35 L33,35 L30,40 L28,45 L25,48 L22,42 L20,45 L15,48 L23,53 L24,58 L28,62 L32,68 L36,75 L38,82 L39,88 L40,94 L42,88 L43,80 L44,72 L46,65 L48,58 L54,58 L58,62 L64,68 L66,60 L70,55 L74,52 L76,46 L78,40 L72,40 L68,36 L65,33 L62,28 L58,25 L54,22 L50,18 L48,15 L45,5 Z" />
-                </svg>
-
-                {/* Plot Cluster Markers */}
-                {projectClusters.map((cluster) => (
-                  <button
-                    key={cluster.id}
-                    onClick={() => setSelectedCluster(cluster)}
-                    style={{ left: `${cluster.x}%`, top: `${cluster.y}%` }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-305 focus:outline-hidden ${
-                      selectedCluster.id === cluster.id 
-                        ? "bg-emerald-650 text-white scale-125 z-20 shadow-md ring-4 ring-emerald-500/20" 
-                        : "bg-white text-emerald-600 border border-emerald-350 scale-100 z-10 hover:scale-110 hover:z-20 shadow-xs"
-                    }`}
-                  >
-                    <MapPin className="h-4 w-4" />
-                  </button>
-                ))}
-
-                {/* Floating Map Legend */}
-                <div className="absolute bottom-3 left-3 bg-white/95 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xxs font-medium shadow-xs">
-                  <div className="flex items-center space-x-1.5 text-slate-700">
-                    <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
-                    <span>Afforestation Assets</span>
-                  </div>
+                <div className="bg-emerald-500/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-emerald-500/30 text-xxs font-bold text-emerald-300 flex items-center shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
+                  Active Hubs
                 </div>
               </div>
-
-              {/* Cluster Detail Overlay */}
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between gap-4">
-                <div className="space-y-1">
-                  <span className="text-xxs font-bold uppercase tracking-wider text-emerald-700">Selected Hub</span>
-                  <h4 className="font-bold text-slate-900 text-sm sm:text-base">{selectedCluster.name}</h4>
-                  <p className="text-xs text-slate-500 flex items-center">
-                    <MapPin className="h-3 w-3 mr-1 text-slate-400" />
-                    {selectedCluster.region}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-1 sm:text-right">
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Planted Assets</span>
-                    <span className="text-xs sm:text-sm font-bold text-slate-900">{selectedCluster.treesPlanted} Trees</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Carbon Sequestration</span>
-                    <span className="text-xs sm:text-sm font-bold text-emerald-655">{selectedCluster.carbonOffset}</span>
-                  </div>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. TRUST / METRICS SECTION */}
-      <section className="py-12 bg-slate-50 border-y border-slate-200">
+      {/* 2. NEED FOR OUR SOLUTION SECTION */}
+      <section className="py-20 bg-slate-50 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs font-bold uppercase tracking-widest text-slate-500 mb-8">
-            Measurable, Auditable, and Scalable Ecological Assets
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-            
-            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xxs">
-              <div className="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg mb-2">
-                <TreePine className="h-5 w-5" />
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest block">
+              The Accountability Challenge
+            </span>
+            <h2 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">
+              Why Existing Afforestation Solutions Fall Short
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+              Corporates invest billions in CSR and environmental offsets, yet traditional programs fail to deliver the transparency, compliance, and survival rates required for true ESG impact.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Pain Point 1 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xxs hover:shadow-xs transition-all flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                  !
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Untraceable Survival Rates</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  Traditional afforestation ends at planting. Without continuous monitoring, sponsors are left in the dark about sapling mortality, canopy development, and actual carbon capture efficacy.
+                </p>
               </div>
-              <p className="text-3xl font-extrabold text-slate-950">2,481,920</p>
-              <p className="text-xs font-semibold text-slate-500">Trees Planted</p>
+              <div className="pt-6 border-t border-slate-100 mt-6 text-xxs font-semibold text-emerald-600 uppercase tracking-wider flex items-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-2"></span>
+                Waste of CSR Budgets
+              </div>
             </div>
 
-            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xxs">
-              <div className="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg mb-2">
-                <Users className="h-5 w-5" />
+            {/* Pain Point 2 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xxs hover:shadow-xs transition-all flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                  ✕
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Double-Counting & Greenwashing</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  Fragmented reporting makes it easy for the same ecological assets to be claimed multiple times. Lack of a single shared registry leads to auditing discrepancies and public greenwashing allegations.
+                </p>
               </div>
-              <p className="text-3xl font-extrabold text-slate-950">12,450</p>
-              <p className="text-xs font-semibold text-slate-500">Farmers Supported</p>
+              <div className="pt-6 border-t border-slate-100 mt-6 text-xxs font-semibold text-emerald-600 uppercase tracking-wider flex items-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-2"></span>
+                Audit & Reputation Risks
+              </div>
             </div>
 
-            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xxs">
-              <div className="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg mb-2">
-                <Building2 className="h-5 w-5" />
+            {/* Pain Point 3 */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xxs hover:shadow-xs transition-all flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                  ⚑
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Compliance & Regulatory Pressure</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  Under India's Section 135 and SEBI's BRSR framework, carbon claims and Schedule VII spending require meticulous, direct-to-source proof-of-work. Static PDF reports are no longer sufficient.
+                </p>
               </div>
-              <p className="text-3xl font-extrabold text-slate-950">142</p>
-              <p className="text-xs font-semibold text-slate-500">Corporate Partners</p>
-            </div>
-
-            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xxs">
-              <div className="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg mb-2">
-                <TrendingUp className="h-5 w-5" />
+              <div className="pt-6 border-t border-slate-100 mt-6 text-xxs font-semibold text-emerald-600 uppercase tracking-wider flex items-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-2"></span>
+                Tighter SEBI & CSR Audits
               </div>
-              <p className="text-3xl font-extrabold text-slate-950">58,940</p>
-              <p className="text-xs font-semibold text-slate-500">tCO2e Sequestered</p>
             </div>
-
-            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xxs col-span-2 md:col-span-1">
-              <div className="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg mb-2">
-                <Map className="h-5 w-5" />
-              </div>
-              <p className="text-3xl font-extrabold text-slate-950">87</p>
-              <p className="text-xs font-semibold text-slate-500">Active Projects</p>
-            </div>
-
           </div>
         </div>
       </section>
@@ -416,14 +227,14 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-slate-50 p-8 rounded-3xl border border-slate-200">
-            
+
             {/* Visualizer Window */}
             <div className="lg:col-span-5 flex flex-col justify-center items-center h-80 bg-white rounded-2xl border border-slate-200/80 p-6 relative overflow-hidden shadow-xs">
               <div className="absolute top-4 left-4 bg-slate-100 px-3 py-1 rounded-full text-xxs font-bold text-slate-600 uppercase tracking-wider">
                 Ecosystem Health Check
               </div>
-              
-              <motion.div 
+
+              <motion.div
                 key={treeGrowthStage}
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -432,7 +243,7 @@ export default function LandingPage() {
               >
                 {growthStages[treeGrowthStage].image}
               </motion.div>
-              
+
               <div className="text-center">
                 <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-100">
                   {growthStages[treeGrowthStage].age}
@@ -453,11 +264,10 @@ export default function LandingPage() {
                   <button
                     key={idx}
                     onClick={() => setTreeGrowthStage(idx)}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border ${
-                      treeGrowthStage === idx
-                        ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border ${treeGrowthStage === idx
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                      }`}
                   >
                     Phase {idx + 1}: {stage.name.split(" ")[0]}
                   </button>
@@ -510,11 +320,10 @@ export default function LandingPage() {
                 <button
                   key={idx}
                   onClick={() => setActiveStep(idx)}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all focus:outline-hidden ${
-                    activeStep === idx
-                      ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all focus:outline-hidden ${activeStep === idx
+                    ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
                 >
                   <StepIcon className="h-5 w-5 mb-1.5" />
                   <span className="text-[10px] font-bold block leading-tight">Step {idx + 1}</span>
@@ -546,7 +355,7 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-            
+
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 w-full md:w-80 flex flex-col space-y-4">
               <div className="flex justify-between items-center pb-2 border-b border-slate-200">
                 <span className="text-xxs font-bold text-slate-500 uppercase">Verification Registry</span>
@@ -586,7 +395,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            
+
             {/* CSR Management */}
             <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-xxs hover:shadow-md transition-all hover:-translate-y-1">
               <div className="bg-emerald-50 text-emerald-605 p-3 rounded-xl inline-block mb-4">
@@ -680,74 +489,130 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* 5. EMERTREES FEATURE MATRIX */}
+      {/* 5. PLATFORM CAPABILITIES & BLOCKCHAIN TRUST */}
       <section id="features" className="py-20 bg-slate-50 border-y border-slate-200 scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest block">
+              Core Capabilities
+            </span>
             <h2 className="text-3xl font-extrabold text-slate-900">
-              Emertrees Feature Matrix
+              High-Integrity Platform Features
             </h2>
-            <p className="text-slate-650">
-              A single view of the operational modules built into the Emertrees afforestation platform.
+            <p className="text-slate-650 text-sm sm:text-base">
+              A comprehensive suite of tools designed to onboard smallholder farmers, audit biomass growth, and issue transparent ESG offset claims.
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xxs">
-            <table className="w-full text-left border-collapse min-w-[760px]">
-              <thead>
-                <tr className="bg-slate-550 border-b border-slate-200">
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-800 bg-slate-100">Capability</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50/50">Emertrees Module</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50">Operational Detail</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                <tr>
-                  <td className="p-4 font-bold text-slate-850">End-to-End Farmer Onboarding</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Farmer Registry</td>
-                  <td className="p-4 text-slate-600">Identity checks, plot assignment, bank payment tracking, and regional NGO handoff.</td>
-                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Active</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-slate-850">India-First CSR Workflow</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">CSR Compliance Engine</td>
-                  <td className="p-4 text-slate-600">Schedule VII tagging, Section 135 checks, escrow allocation, and milestone logs.</td>
-                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Built in</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-slate-850">Blockchain Audit Trail</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">IPFS Ledger Records</td>
-                  <td className="p-4 text-slate-600">Tree history, coordinates, media proofs, and updates committed to immutable records.</td>
-                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Verifiable</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-slate-850">ESG Compliance Reporting</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Report Generator</td>
-                  <td className="p-4 text-slate-600">CSR-2 sheets, BRSR statements, carbon ledgers, and signed audit exports.</td>
-                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Export ready</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-slate-850">Carbon Credit Readiness</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Biomass Model v2.1</td>
-                  <td className="p-4 text-slate-600">Species, age, canopy, survival, and regional sequestration calculations.</td>
-                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Modelled</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-slate-850">Plantation & Marine Assets</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Asset Portfolio</td>
-                  <td className="p-4 text-slate-600">Agroforestry, mangrove, urban forest, wildfire restoration, and kelp programs.</td>
-                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Multi-asset</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-slate-850">Corporate API Integrations</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">OpenAPI Suite</td>
-                  <td className="p-4 text-slate-600">Donation triggers, tree registration, impact reports, and certificate retrieval.</td>
-                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Documented</td>
-                </tr>
-              </tbody>
-            </table>
+          {/* Feature Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            {/* Card 1 */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-emerald-500 transition-all shadow-xxs hover:shadow-xs group">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                <Users className="h-5 w-5 text-emerald-600" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-2">Farmer Onboarding</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Site boundary verification, direct bank integration checks, and localized socio-economic support tracking for smallholder farmers.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-emerald-500 transition-all shadow-xxs hover:shadow-xs group">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                <Building2 className="h-5 w-5 text-emerald-600" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-2">CSR Compliance</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Automated Schedule VII tagging, Section 135 compliance checks, and escrow distribution registers.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-emerald-500 transition-all shadow-xxs hover:shadow-xs group">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                <TrendingUp className="h-5 w-5 text-emerald-600" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-2">Biomass Modeling</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Species-specific carbon offset calculations matching native vegetation biomass growth and age indexes.
+              </p>
+            </div>
+
+            {/* Card 4 */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-emerald-500 transition-all shadow-xxs hover:shadow-xs group">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                <Layers className="h-5 w-5 text-emerald-600" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-2">Satellite Audits</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Periodic satellite canopy passes combined with direct field drone captures to calculate actual survival rates.
+              </p>
+            </div>
+
+          </div>
+
+          {/* Why the Need for Blockchain Showcase */}
+          <div className="mt-12 bg-slate-950 text-white rounded-3xl border border-emerald-500/25 p-8 sm:p-12 relative overflow-hidden shadow-xl">
+            {/* Ambient Background Glows */}
+            <div className="absolute -top-12 -right-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block">
+                  Trust Architecture
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Why the Need for Blockchain?
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Traditional afforestation databases are centralized, making them vulnerable to deletion, manual alterations, and double-counting of carbon offset claims. By anchoring every environmental asset to a decentralized ledger, we establish a single source of truth for global stakeholders.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div className="flex items-start space-x-3">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200">Anti-Double Counting</h4>
+                      <p className="text-xxs text-slate-400">Each tree geotag is mapped to a unique cryptographic token ID, ensuring it cannot be sold or claimed twice.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200">Immutable Audit Trail</h4>
+                      <p className="text-xxs text-slate-400">Field photos and coordinates are saved to IPFS, hashing records permanently to prevent post-facto editing.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-5 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md space-y-4">
+                <div className="flex justify-between items-center pb-3 border-b border-white/10">
+                  <span className="text-xxs font-mono text-emerald-400 font-bold">BLOCKCHAIN REGISTRY</span>
+                  <span className="text-xxs font-mono text-slate-400">Sync: OK</span>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Protocol:</span>
+                    <span className="font-mono text-slate-200">Hyperledger / IPFS</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Verification Hash:</span>
+                    <span className="font-mono text-emerald-300 truncate w-36 text-right font-medium">0x8a92f...d5b8c</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Consensus Status:</span>
+                    <span className="text-emerald-400 font-semibold">100% Validated</span>
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <div className="w-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 py-2 rounded-lg text-center font-mono text-[10px] tracking-wider">
+                    DECENTRALIZED COMPLIANCE ACTIVE
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -761,311 +626,24 @@ export default function LandingPage() {
               <h2 className="text-3xl font-extrabold text-slate-900">Interactive Impact Map</h2>
               <p className="text-slate-650">Verify coordinates, species density, and health parameters across selected hubs.</p>
             </div>
-            
-            {/* Map Layer Controller */}
-            <div className="flex space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-205">
-              <button
-                onClick={() => setMapLayer("clusters")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  mapLayer === "clusters" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <Layers className="h-3.5 w-3.5 inline mr-1.5" />
-                3D Clusters
-              </button>
-              <button
-                onClick={() => setMapLayer("heatmap")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  mapLayer === "heatmap" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <Zap className="h-3.5 w-3.5 inline mr-1.5" />
-                Heat Map
-              </button>
-              <button
-                onClick={() => setMapLayer("satellite")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  mapLayer === "satellite" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <Globe className="h-3.5 w-3.5 inline mr-1.5" />
-                Satellite Overlay
-              </button>
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* Large Interactive Map Visualizer */}
-            <div className="lg:col-span-8 bg-slate-50 h-[450px] rounded-3xl border border-slate-200 relative overflow-hidden flex items-center justify-center">
-              
-              {/* Layer Simulation Overlay */}
-              <div className="absolute inset-0 bg-grid-pattern opacity-40"></div>
-              
-              {mapLayer === "clusters" && (
-                <div className="absolute inset-0 flex items-center justify-center animate-in fade-in duration-300">
-                  {/* Custom Graphic Grid of India Projects */}
-                  <svg className="w-full h-full p-8 text-slate-200 stroke-slate-350 stroke-1 stroke-dasharray-2 fill-emerald-50/5" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="40" className="stroke-slate-300 fill-slate-50/10" />
-                    <circle cx="39" cy="72" r="6" className="fill-emerald-100/30 stroke-emerald-600 stroke-2" />
-                    <circle cx="39" cy="72" r="2" className="fill-emerald-650" />
-                    <circle cx="75" cy="46" r="4" className="fill-emerald-100/30 stroke-emerald-600 stroke-2" />
-                    <circle cx="75" cy="46" r="2" className="fill-emerald-650" />
-                    <circle cx="45" cy="18" r="5" className="fill-emerald-100/30 stroke-emerald-600 stroke-2" />
-                    <circle cx="45" cy="18" r="2" className="fill-emerald-650" />
-                    <line x1="39" y1="72" x2="75" y2="46" className="stroke-emerald-450 stroke-dashed" />
-                    <line x1="45" y1="18" x2="39" y2="72" className="stroke-emerald-450 stroke-dashed" />
-                  </svg>
-                  <div className="absolute top-1/4 left-1/2 -translate-x-1/2 bg-white/95 px-4 py-2 rounded-xl border border-slate-200 text-center shadow-md">
-                    <span className="text-xxs font-bold text-emerald-800 uppercase block tracking-wider">Himalayan Corridor</span>
-                    <span className="text-xs font-bold text-slate-800">45 Active GPS Logs</span>
-                  </div>
-                </div>
-              )}
-
-              {mapLayer === "heatmap" && (
-                <div className="absolute inset-0 flex items-center justify-center animate-in fade-in duration-300 bg-emerald-50/10">
-                  {/* Heatmap overlay representation */}
-                  <div className="w-48 h-48 rounded-full bg-emerald-500/25 absolute top-1/3 left-1/3 blur-xl"></div>
-                  <div className="w-64 h-64 rounded-full bg-teal-500/20 absolute bottom-1/4 right-1/4 blur-2xl"></div>
-                  <div className="w-32 h-32 rounded-full bg-emerald-650/30 absolute top-1/2 left-1/2 blur-lg"></div>
-                  <div className="absolute bottom-4 right-4 bg-white/95 p-3 rounded-lg border border-slate-200 text-xxs shadow-xs">
-                    <span className="font-bold text-slate-900 block mb-1">Carbon Density Index</span>
-                    <div className="w-32 h-2 bg-gradient-to-right from-emerald-100 via-emerald-500 to-emerald-800 rounded-full"></div>
-                    <div className="flex justify-between mt-1 text-slate-500">
-                      <span>Low</span>
-                      <span>High</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {mapLayer === "satellite" && (
-                <div className="absolute inset-0 flex items-center justify-center animate-in fade-in duration-300 bg-slate-900">
-                  {/* Dark-satellite visual simulation */}
-                  <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/80"></div>
-                  <svg className="w-full h-full p-12 text-slate-800 stroke-emerald-700/60 fill-none" viewBox="0 0 100 100">
-                    <path d="M10,10 H90 V90 H10 Z" className="stroke-slate-700" />
-                    <circle cx="50" cy="50" r="30" className="stroke-emerald-600/30" />
-                    <line x1="10" y1="50" x2="90" y2="50" className="stroke-slate-800" />
-                    <line x1="50" y1="10" x2="50" y2="90" className="stroke-slate-800" />
-                    {/* Simulated coordinates scanner crosshair */}
-                    <circle cx="39" cy="72" r="1.5" className="fill-emerald-400 animate-ping" />
-                    <circle cx="39" cy="72" r="0.5" className="fill-emerald-400" />
-                  </svg>
-                  <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-xxs font-mono text-emerald-400">
-                    LAT: 12.9716° N / LON: 77.5946° E
-                  </div>
-                  <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-xxs font-mono text-slate-300">
-                    Orbital Pass: LANDSAT-9 • Resolution: 15m
-                  </div>
-                </div>
-              )}
-
-              {/* Floating Layer Tag */}
-              <div className="absolute top-4 right-4 bg-white/95 px-3 py-1 rounded-full border border-slate-200 text-xxs font-bold text-slate-750 shadow-xs uppercase tracking-wider">
-                {mapLayer === "clusters" && "Plot clusters View"}
-                {mapLayer === "heatmap" && "Eco-density Heatmap"}
-                {mapLayer === "satellite" && "Satellite Pass Overlay"}
+          <div className="w-full bg-slate-50 rounded-3xl border border-slate-200 relative overflow-hidden flex items-center justify-center p-2 shadow-xs group">
+            <img
+              src="/india-map.png"
+              alt="Interactive Impact Map"
+              className="w-full h-auto object-contain rounded-2xl max-h-[600px] transition-transform duration-500 group-hover:scale-[1.002]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 text-white">
+              <div>
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1">Interactive Audit Hub</span>
+                <h3 className="text-xl font-extrabold">Active Plantation Density</h3>
               </div>
-
+              <span className="text-xxs font-mono bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-slate-300">
+                Lat/Lon Regional Compliance Markers Verified
+              </span>
             </div>
-
-            {/* Sidebar Details */}
-            <div className="lg:col-span-4 space-y-6">
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
-                <h3 className="font-bold text-slate-950 text-base">Afforestation Regions</h3>
-                <p className="text-xs text-slate-500">Verify direct compliance statistics for key Indian operational hubs:</p>
-
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                  {projectClusters.map((cluster) => (
-                    <button
-                      key={cluster.id}
-                      onClick={() => setSelectedCluster(cluster)}
-                      className={`w-full text-left p-3 rounded-xl border transition-all ${
-                        selectedCluster.id === cluster.id
-                          ? "bg-white border-emerald-500 shadow-xs"
-                          : "bg-slate-100/50 hover:bg-white border-transparent"
-                      }`}
-                    >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-bold text-xs text-slate-900">{cluster.name}</span>
-                        <span className="text-[10px] bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded-full font-bold">
-                          {cluster.treesPlanted}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-slate-500 block">{cluster.region}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Selected Cluster Details card */}
-              <div className="bg-emerald-50/40 p-6 rounded-2xl border border-emerald-100 space-y-3">
-                <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest block">Audit Parameters</span>
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <span className="text-slate-500 block">Ecosystem</span>
-                    <span className="font-bold text-slate-900">{selectedCluster.ecosystem}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Farmers Logged</span>
-                    <span className="font-bold text-slate-900">{selectedCluster.farmersCount} Active</span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-slate-500 block mb-1">Target Species Array</span>
-                    <div className="flex flex-wrap gap-1">
-                      {selectedCluster.species.map((sp) => (
-                        <span key={sp} className="bg-white px-2 py-0.5 rounded-md border border-emerald-100 text-[10px] font-medium text-emerald-900">
-                          {sp}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. ESG REPORTING SECTION */}
-      <section className="py-20 bg-slate-50 border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left Column: Generator App */}
-            <div className="lg:col-span-5 space-y-6">
-              <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest block">Stakeholder Transparency</span>
-              <h2 className="text-3xl font-extrabold text-slate-900">Downloadable Audit & ESG Reports</h2>
-              <p className="text-slate-650 leading-relaxed text-sm sm:text-base">
-                Generate and download Board-Ready CSR-2 compliance sheets, BRSR format reports, and carbon asset statements synced with our blockchain ledger records.
-              </p>
-
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={() => handleGenerateReport("CSR Report (Schedule VII)")}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 text-left transition-all hover:shadow-xs group focus:outline-hidden"
-                >
-                  <FileSpreadsheet className="h-6 w-6 text-slate-500 group-hover:text-emerald-600 mb-3" />
-                  <h4 className="font-bold text-slate-900 text-sm">CSR Audit Sheets</h4>
-                  <p className="text-[10px] text-slate-550 mt-1">Schedule VII CSR-2 Compliant</p>
-                </button>
-
-                <button
-                  onClick={() => handleGenerateReport("ESG Performance Statement")}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 text-left transition-all hover:shadow-xs group focus:outline-hidden"
-                >
-                  <Building2 className="h-6 w-6 text-slate-500 group-hover:text-emerald-600 mb-3" />
-                  <h4 className="font-bold text-slate-900 text-sm">BRSR Core Matrix</h4>
-                  <p className="text-[10px] text-slate-550 mt-1">Corporate SEBI disclosure ready</p>
-                </button>
-
-                <button
-                  onClick={() => handleGenerateReport("Carbon Mitigation Register")}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 text-left transition-all hover:shadow-xs group focus:outline-hidden"
-                >
-                  <TrendingUp className="h-6 w-6 text-slate-500 group-hover:text-emerald-600 mb-3" />
-                  <h4 className="font-bold text-slate-900 text-sm">Carbon Ledgers</h4>
-                  <p className="text-[10px] text-slate-550 mt-1">Co2 Sequestration models</p>
-                </button>
-
-                <button
-                  onClick={() => handleGenerateReport("IPFS Audit Ledger Hash")}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 text-left transition-all hover:shadow-xs group focus:outline-hidden"
-                >
-                  <Database className="h-6 w-6 text-slate-500 group-hover:text-emerald-600 mb-3" />
-                  <h4 className="font-bold text-slate-900 text-sm">Audit Reports</h4>
-                  <p className="text-[10px] text-slate-550 mt-1">Signed IPFS hashes</p>
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column: Loading progress simulator / Visual output */}
-            <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl flex flex-col justify-between h-[360px]">
-              <div className="border-b border-slate-150 pb-4 flex justify-between items-center">
-                <span className="text-xxs font-bold text-slate-550 uppercase">Emertrees Compliance Engine</span>
-                <span className="text-xxs font-mono text-slate-400">BUILD: v2.4.1</span>
-              </div>
-
-              <AnimatePresence mode="wait">
-                {generatingReport ? (
-                  <motion.div 
-                    key="generating"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex flex-col items-center justify-center space-y-4 my-auto"
-                  >
-                    <div className="w-12 h-12 rounded-full border-4 border-emerald-200 border-t-emerald-600 animate-spin"></div>
-                    <div className="text-center">
-                      <h4 className="font-bold text-slate-800 text-sm">Compiling Ledger Data...</h4>
-                      <p className="text-xs text-slate-500 mt-1">Generating verified report for: {selectedReport}</p>
-                    </div>
-                    <div className="w-64 bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div className="bg-emerald-600 h-full transition-all duration-300" style={{ width: `${generationProgress}%` }} />
-                    </div>
-                  </motion.div>
-                ) : reportSuccess ? (
-                  <motion.div 
-                    key="success"
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex flex-col items-center justify-center space-y-4 my-auto text-center"
-                  >
-                    <div className="bg-emerald-50 p-4 rounded-full text-emerald-600 border border-emerald-100">
-                      <FileCheck className="h-8 w-8 text-emerald-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-slate-900 text-base">Report Generated Successfully</h4>
-                      <p className="text-xs text-slate-500 mt-1">Cryptographic checksum verified and compiled.</p>
-                    </div>
-                    <div className="flex space-x-3 pt-2">
-                      <a
-                        href="/dashboard/corporate"
-                        className="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-xs"
-                      >
-                        <Download className="h-3.5 w-3.5 mr-1.5" />
-                        Download PDF
-                      </a>
-                      <Link
-                        href="/dashboard/blockchain"
-                        className="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        <Database className="h-3.5 w-3.5 mr-1.5 text-slate-400" />
-                        View Verification Record
-                      </Link>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    key="idle"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex flex-col items-center justify-center space-y-4 my-auto text-center py-6"
-                  >
-                    <div className="bg-slate-50 p-4 rounded-full border border-slate-100 text-slate-400">
-                      <FileSpreadsheet className="h-8 w-8 text-slate-400" />
-                    </div>
-                    <div className="max-w-md">
-                      <h4 className="font-bold text-slate-900 text-sm">Ready to Export</h4>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Select a report on the left panel. The compiler will aggregate farmer logs, coordinate sets, and carbon parameters, producing a signed compliance export.
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <div className="border-t border-slate-150 pt-3 flex justify-between text-[10px] text-slate-400 font-mono">
-                <span>SEBI BRSR Compliant</span>
-                <span>SHA-256 Secured Ledger</span>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>
@@ -1083,7 +661,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
+
             {/* Case Study 1 */}
             <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between shadow-xxs">
               <div className="p-6 sm:p-8 space-y-6">
@@ -1179,7 +757,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
+
             {/* Card 1: CSR Programs */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col justify-between hover:border-emerald-500 transition-all shadow-xxs">
               <div className="space-y-4">
@@ -1256,141 +834,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-          </div>
-        </div>
-      </section>
-
-      {/* 10. API DOCS SECTION */}
-      <section id="api-docs" className="py-20 bg-slate-950 text-white scroll-mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-12">
-            <div className="space-y-3 max-w-2xl">
-              <span className="text-xs font-bold text-emerald-350 uppercase tracking-widest">Developer Portal</span>
-              <h2 className="text-3xl font-extrabold tracking-tight">Emertrees API Docs</h2>
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                Integrate sponsorship triggers, tree registration, impact reporting, and certificate verification directly into enterprise ESG systems.
-              </p>
-            </div>
-            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-emerald-300">
-              <span className="mr-2 h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              Sandbox endpoints available
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur">
-              <span className="block px-3 pb-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                API References
-              </span>
-              <div className="space-y-2">
-                {apiEndpoints.map((endpoint) => (
-                  <button
-                    key={endpoint.id}
-                    onClick={() => setActiveApi(endpoint)}
-                    className={`w-full rounded-xl border p-3 text-left transition-all ${
-                      activeApi.id === endpoint.id
-                        ? "border-emerald-400/50 bg-emerald-400/10 text-white"
-                        : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate font-mono text-xs font-bold">{endpoint.path}</span>
-                      <span className={`rounded-md px-2 py-0.5 text-[9px] font-extrabold ${
-                        endpoint.method === "POST"
-                          ? "bg-emerald-400/15 text-emerald-300"
-                          : "bg-sky-400/15 text-sky-300"
-                      }`}>
-                        {endpoint.method}
-                      </span>
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-[10px] leading-normal text-slate-400">
-                      {endpoint.description}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
-              <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-                <Terminal className="h-5 w-5 text-emerald-300" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className={`rounded-md px-2 py-1 text-[10px] font-extrabold ${
-                      activeApi.method === "POST"
-                        ? "bg-emerald-400/15 text-emerald-300"
-                        : "bg-sky-400/15 text-sky-300"
-                    }`}>
-                      {activeApi.method}
-                    </span>
-                    <span className="font-mono text-sm font-bold text-white">{activeApi.path}</span>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-300">{activeApi.description}</p>
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-5">
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                  <div className="mb-2 flex items-center justify-between text-xs">
-                    <span className="inline-flex items-center font-bold text-slate-200">
-                      <Key className="mr-2 h-4 w-4 text-emerald-300" />
-                      Authentication
-                    </span>
-                    <span className="font-mono text-[10px] text-slate-400">{activeApi.auth}</span>
-                  </div>
-                  <p className="text-[10px] leading-relaxed text-slate-400">
-                    Use scoped keys from the Admin dashboard. Write keys are restricted by tenant and partner role.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Payload Fields</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {activeApi.fields.map((field) => (
-                      <span key={field} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-200">
-                        {field}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Response Includes</h3>
-                  <p className="rounded-xl border border-white/10 bg-black/20 p-4 font-mono text-xs leading-relaxed text-emerald-250">
-                    {activeApi.response}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-zinc-950 p-5 shadow-2xl">
-              <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Shell Preview</span>
-                <button
-                  onClick={() => navigator.clipboard.writeText(`curl -X ${activeApi.method} https://api.emertrees.co${activeApi.path}`)}
-                  className="inline-flex items-center rounded-lg border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
-                >
-                  <Copy className="mr-1.5 h-3 w-3" />
-                  Copy
-                </button>
-              </div>
-              <pre className="min-h-48 overflow-x-auto whitespace-pre-wrap rounded-xl bg-black/50 p-4 font-mono text-xs leading-relaxed text-slate-300">
-{`curl -X ${activeApi.method} https://api.emertrees.co${activeApi.path} \\
-  -H "Authorization: ${activeApi.auth}" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "${activeApi.fields[0]}": "example_value",
-    "${activeApi.fields[1]}": "example_value"
-  }'`}
-              </pre>
-              <button
-                onClick={() => setSelectedReport(`Sandbox ${activeApi.path}`)}
-                className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-bold text-slate-950 transition-colors hover:bg-emerald-400"
-              >
-                <Play className="mr-1.5 h-3.5 w-3.5" />
-                Execute Sandbox Call
-              </button>
-            </div>
           </div>
         </div>
       </section>
