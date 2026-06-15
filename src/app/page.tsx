@@ -9,24 +9,24 @@ import {
   Building2, 
   Coins, 
   Map, 
-  ShieldCheck, 
   TrendingUp, 
   FileCheck, 
   Check, 
-  X, 
   ArrowRight, 
   Download, 
   MapPin, 
   Globe, 
   Layers, 
   Zap, 
-  Search, 
-  Calendar,
   Sparkles,
   ChevronRight,
   Database,
   ArrowUpRight,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Terminal,
+  Key,
+  Play,
+  Copy
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -43,6 +43,16 @@ interface ProjectCluster {
   carbonOffset: string;
   species: string[];
   ecosystem: string;
+}
+
+interface ApiEndpoint {
+  id: string;
+  method: "GET" | "POST";
+  path: string;
+  description: string;
+  auth: string;
+  fields: string[];
+  response: string;
 }
 
 const projectClusters: ProjectCluster[] = [
@@ -108,10 +118,50 @@ const projectClusters: ProjectCluster[] = [
   }
 ];
 
+const apiEndpoints: ApiEndpoint[] = [
+  {
+    id: "donations",
+    method: "POST",
+    path: "/v1/donations",
+    description: "Create a corporate sponsorship allocation and lock the Schedule VII compliance tag.",
+    auth: "Bearer Corporate API Key",
+    fields: ["corporateId", "projectId", "amount", "targetTreeCount"],
+    response: "donationId, escrowStatus, blockchainTx, complianceCode"
+  },
+  {
+    id: "trees",
+    method: "POST",
+    path: "/v1/trees",
+    description: "Register a planted sapling with geotags, species metadata, farmer assignment, and photo proof.",
+    auth: "Bearer NGO Partner Key",
+    fields: ["donationId", "farmerId", "latitude", "longitude", "speciesName"],
+    response: "treeId, ipfsHash, ledgerIndex, verified"
+  },
+  {
+    id: "impact-report",
+    method: "GET",
+    path: "/v1/impact-report",
+    description: "Retrieve verified totals, survival rates, active farmers, and carbon offset registers.",
+    auth: "Bearer Reader Key",
+    fields: ["corporateId", "includeAuditTrail"],
+    response: "totalTreesPlanted, verifiedSurvivalRate, carbonOffsetTotal"
+  },
+  {
+    id: "certificate",
+    method: "GET",
+    path: "/v1/certificate",
+    description: "Fetch signed impact certificates for board decks, audits, and public verification URLs.",
+    auth: "Bearer Corporate API Key",
+    fields: ["donationId", "format"],
+    response: "certificateId, signatureHash, publicVerificationUrl"
+  }
+];
+
 export default function LandingPage() {
   const [selectedCluster, setSelectedCluster] = useState<ProjectCluster>(projectClusters[2]); // Western Ghats default
   const [treeGrowthStage, setTreeGrowthStage] = useState(0); // 0: Seed, 1: Sprout, 2: Sapling, 3: Mature, 4: Canopy
   const [activeStep, setActiveStep] = useState(0);
+  const [activeApi, setActiveApi] = useState<ApiEndpoint>(apiEndpoints[0]);
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   const [generatingReport, setGeneratingReport] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -170,7 +220,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* 1. HERO SECTION */}
-      <section className="relative pt-28 pb-20 overflow-hidden bg-grid-pattern">
+      <section id="home" className="relative pt-28 pb-20 overflow-hidden bg-grid-pattern scroll-mt-24">
         {/* Ambient Gradient Blobs */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-100/50 rounded-full blur-3xl -z-10" />
         <div className="absolute top-20 right-1/4 w-96 h-96 bg-teal-150/40 rounded-full blur-3xl -z-10" />
@@ -204,7 +254,7 @@ export default function LandingPage() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <a
-                  href="#impact-map"
+                  href="#projects"
                   className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50 transition-colors"
                 >
                   Explore Impact
@@ -441,7 +491,7 @@ export default function LandingPage() {
       </section>
 
       {/* 3. HOW IT WORKS SECTION (Interactive Process Flow) */}
-      <section className="py-20 bg-slate-50 border-b border-slate-200">
+      <section id="lifecycle" className="py-20 bg-slate-50 border-b border-slate-200 scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl font-extrabold text-slate-900">
@@ -488,7 +538,7 @@ export default function LandingPage() {
               </p>
               <div className="flex items-center space-x-4 pt-2">
                 <Link
-                  href="/lifecycle"
+                  href="#lifecycle"
                   className="text-xs font-bold text-emerald-600 hover:text-emerald-700 inline-flex items-center"
                 >
                   Explore Detailed Lifecycle Trace
@@ -631,78 +681,70 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5. COMPETITIVE ADVANTAGE (Credible Feature Matrix) */}
-      <section className="py-20 bg-slate-50 border-y border-slate-200">
+      {/* 5. EMERTREES FEATURE MATRIX */}
+      <section id="features" className="py-20 bg-slate-50 border-y border-slate-200 scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl font-extrabold text-slate-900">
-              Credible Feature Comparison
+              Emertrees Feature Matrix
             </h2>
             <p className="text-slate-650">
-              Why enterprise compliance teams choose Emertrees for full transparency and high auditability.
+              A single view of the operational modules built into the Emertrees afforestation platform.
             </p>
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xxs">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-[760px]">
               <thead>
                 <tr className="bg-slate-550 border-b border-slate-200">
                   <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-800 bg-slate-100">Capability</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50/50">Emertrees</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50">EcoMatcher</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50">Veritree</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50">Other Options</th>
+                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50/50">Emertrees Module</th>
+                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50">Operational Detail</th>
+                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
                 <tr>
                   <td className="p-4 font-bold text-slate-850">End-to-End Farmer Onboarding</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline" /> Complete</td>
-                  <td className="p-4 text-slate-400">Partners only</td>
-                  <td className="p-4 text-slate-600">Limited</td>
-                  <td className="p-4 text-slate-400">Manual</td>
+                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Farmer Registry</td>
+                  <td className="p-4 text-slate-600">Identity checks, plot assignment, bank payment tracking, and regional NGO handoff.</td>
+                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Active</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-850">India-First CSR Workflow</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline" /> Built-in (Sch VII)</td>
-                  <td className="p-4 text-slate-400">None</td>
-                  <td className="p-4 text-slate-400">None</td>
-                  <td className="p-4 text-slate-600">Partial templates</td>
+                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">CSR Compliance Engine</td>
+                  <td className="p-4 text-slate-600">Schedule VII tagging, Section 135 checks, escrow allocation, and milestone logs.</td>
+                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Built in</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-850">Blockchain Audit Trail</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline" /> Public Ledger (IPFS)</td>
-                  <td className="p-4 text-slate-400">Private DB</td>
-                  <td className="p-4 text-emerald-650"><Check className="h-4 w-4 text-emerald-600 inline mr-1" /> Custom</td>
-                  <td className="p-4 text-slate-400">None</td>
+                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">IPFS Ledger Records</td>
+                  <td className="p-4 text-slate-600">Tree history, coordinates, media proofs, and updates committed to immutable records.</td>
+                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Verifiable</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-850">ESG Compliance Reporting</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline" /> Audit-ready PDFs</td>
-                  <td className="p-4 text-slate-400">Summary Only</td>
-                  <td className="p-4 text-slate-600">Standard</td>
-                  <td className="p-4 text-slate-400">Manual</td>
+                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Report Generator</td>
+                  <td className="p-4 text-slate-600">CSR-2 sheets, BRSR statements, carbon ledgers, and signed audit exports.</td>
+                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Export ready</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-850">Carbon Credit Readiness</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline" /> Gold Standard ready</td>
-                  <td className="p-4 text-slate-400">No</td>
-                  <td className="p-4 text-slate-600">Eligible</td>
-                  <td className="p-4 text-slate-400">No</td>
+                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Biomass Model v2.1</td>
+                  <td className="p-4 text-slate-600">Species, age, canopy, survival, and regional sequestration calculations.</td>
+                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Modelled</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-850">Plantation & Marine Assets</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline" /> Yes (Includes Kelp)</td>
-                  <td className="p-4 text-slate-400">Forestry only</td>
-                  <td className="p-4 text-slate-400">Forestry only</td>
-                  <td className="p-4 text-slate-400">Forestry only</td>
+                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">Asset Portfolio</td>
+                  <td className="p-4 text-slate-600">Agroforestry, mangrove, urban forest, wildfire restoration, and kelp programs.</td>
+                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Multi-asset</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-850">Corporate API Integrations</td>
-                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline" /> Full OpenAPI Suite</td>
-                  <td className="p-4 text-slate-400">Limited widget</td>
-                  <td className="p-4 text-slate-600">Webhooks</td>
-                  <td className="p-4 text-slate-400">No API</td>
+                  <td className="p-4 text-emerald-650 bg-emerald-50/20 font-semibold">OpenAPI Suite</td>
+                  <td className="p-4 text-slate-600">Donation triggers, tree registration, impact reports, and certificate retrieval.</td>
+                  <td className="p-4 text-emerald-650 font-semibold"><Check className="h-5 w-5 text-emerald-650 inline mr-1" /> Documented</td>
                 </tr>
               </tbody>
             </table>
@@ -710,8 +752,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 6. INTERACTIVE IMPACT MAP SECTION */}
-      <section id="impact-map" className="py-20 bg-white">
+      {/* 6. PROJECTS / INTERACTIVE IMPACT MAP SECTION */}
+      <section id="projects" className="py-20 bg-white scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6">
             <div className="space-y-2">
@@ -1074,7 +1116,7 @@ export default function LandingPage() {
               </div>
               <div className="bg-slate-100 px-6 py-4 border-t border-slate-200 flex justify-between items-center text-xs">
                 <span className="text-slate-500">Supported by: Infosys CSR division</span>
-                <Link href="/lifecycle" className="font-bold text-emerald-600 hover:text-emerald-700 flex items-center">
+                <Link href="#lifecycle" className="font-bold text-emerald-600 hover:text-emerald-700 flex items-center">
                   Verify Blockchain Ledger
                   <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
@@ -1113,7 +1155,7 @@ export default function LandingPage() {
               </div>
               <div className="bg-slate-100 px-6 py-4 border-t border-slate-200 flex justify-between items-center text-xs">
                 <span className="text-slate-500">Supported by: TCS Foundation</span>
-                <Link href="/lifecycle" className="font-bold text-emerald-600 hover:text-emerald-700 flex items-center">
+                <Link href="#lifecycle" className="font-bold text-emerald-600 hover:text-emerald-700 flex items-center">
                   Verify Blockchain Ledger
                   <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
@@ -1187,7 +1229,7 @@ export default function LandingPage() {
               </div>
               <div className="pt-6">
                 <Link
-                  href="/projects"
+                  href="#projects"
                   className="w-full text-center inline-block px-4 py-2.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors"
                 >
                   Browse Projects
@@ -1214,6 +1256,141 @@ export default function LandingPage() {
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* 10. API DOCS SECTION */}
+      <section id="api-docs" className="py-20 bg-slate-950 text-white scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-12">
+            <div className="space-y-3 max-w-2xl">
+              <span className="text-xs font-bold text-emerald-350 uppercase tracking-widest">Developer Portal</span>
+              <h2 className="text-3xl font-extrabold tracking-tight">Emertrees API Docs</h2>
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                Integrate sponsorship triggers, tree registration, impact reporting, and certificate verification directly into enterprise ESG systems.
+              </p>
+            </div>
+            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-emerald-300">
+              <span className="mr-2 h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Sandbox endpoints available
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur">
+              <span className="block px-3 pb-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                API References
+              </span>
+              <div className="space-y-2">
+                {apiEndpoints.map((endpoint) => (
+                  <button
+                    key={endpoint.id}
+                    onClick={() => setActiveApi(endpoint)}
+                    className={`w-full rounded-xl border p-3 text-left transition-all ${
+                      activeApi.id === endpoint.id
+                        ? "border-emerald-400/50 bg-emerald-400/10 text-white"
+                        : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-mono text-xs font-bold">{endpoint.path}</span>
+                      <span className={`rounded-md px-2 py-0.5 text-[9px] font-extrabold ${
+                        endpoint.method === "POST"
+                          ? "bg-emerald-400/15 text-emerald-300"
+                          : "bg-sky-400/15 text-sky-300"
+                      }`}>
+                        {endpoint.method}
+                      </span>
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-[10px] leading-normal text-slate-400">
+                      {endpoint.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
+              <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+                <Terminal className="h-5 w-5 text-emerald-300" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-md px-2 py-1 text-[10px] font-extrabold ${
+                      activeApi.method === "POST"
+                        ? "bg-emerald-400/15 text-emerald-300"
+                        : "bg-sky-400/15 text-sky-300"
+                    }`}>
+                      {activeApi.method}
+                    </span>
+                    <span className="font-mono text-sm font-bold text-white">{activeApi.path}</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-300">{activeApi.description}</p>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-5">
+                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="mb-2 flex items-center justify-between text-xs">
+                    <span className="inline-flex items-center font-bold text-slate-200">
+                      <Key className="mr-2 h-4 w-4 text-emerald-300" />
+                      Authentication
+                    </span>
+                    <span className="font-mono text-[10px] text-slate-400">{activeApi.auth}</span>
+                  </div>
+                  <p className="text-[10px] leading-relaxed text-slate-400">
+                    Use scoped keys from the Admin dashboard. Write keys are restricted by tenant and partner role.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Payload Fields</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {activeApi.fields.map((field) => (
+                      <span key={field} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-200">
+                        {field}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Response Includes</h3>
+                  <p className="rounded-xl border border-white/10 bg-black/20 p-4 font-mono text-xs leading-relaxed text-emerald-250">
+                    {activeApi.response}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-zinc-950 p-5 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Shell Preview</span>
+                <button
+                  onClick={() => navigator.clipboard.writeText(`curl -X ${activeApi.method} https://api.emertrees.co${activeApi.path}`)}
+                  className="inline-flex items-center rounded-lg border border-white/10 px-2 py-1 text-[10px] font-bold text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <Copy className="mr-1.5 h-3 w-3" />
+                  Copy
+                </button>
+              </div>
+              <pre className="min-h-48 overflow-x-auto whitespace-pre-wrap rounded-xl bg-black/50 p-4 font-mono text-xs leading-relaxed text-slate-300">
+{`curl -X ${activeApi.method} https://api.emertrees.co${activeApi.path} \\
+  -H "Authorization: ${activeApi.auth}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "${activeApi.fields[0]}": "example_value",
+    "${activeApi.fields[1]}": "example_value"
+  }'`}
+              </pre>
+              <button
+                onClick={() => setSelectedReport(`Sandbox ${activeApi.path}`)}
+                className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-bold text-slate-950 transition-colors hover:bg-emerald-400"
+              >
+                <Play className="mr-1.5 h-3.5 w-3.5" />
+                Execute Sandbox Call
+              </button>
+            </div>
           </div>
         </div>
       </section>

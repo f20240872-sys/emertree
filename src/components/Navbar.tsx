@@ -23,15 +23,18 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Projects", href: "/projects" },
-    { name: "Lifecycle", href: "/lifecycle" },
-    { name: "API Docs", href: "/api" },
+    { name: "Home", href: "/#home" },
+    { name: "Projects", href: "/#projects" },
+    { name: "Lifecycle", href: "/#lifecycle" },
+    { name: "API Docs", href: "/#api-docs" },
   ];
 
   const isActive = (path: string) => {
-    if (path === "/") {
+    if (path === "/#home") {
       return pathname === "/";
+    }
+    if (path.startsWith("/#")) {
+      return false;
     }
     return pathname.startsWith(path);
   };

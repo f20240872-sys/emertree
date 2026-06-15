@@ -13,14 +13,14 @@ export default function Footer() {
       { name: "Press Kit", href: "/#" },
     ],
     platform: [
-      { name: "Plantation Projects", href: "/projects" },
-      { name: "Lifecycle Tracking", href: "/lifecycle" },
+      { name: "Plantation Projects", href: "/#projects" },
+      { name: "Lifecycle Tracking", href: "/#lifecycle" },
       { name: "Farmer Network", href: "/dashboard/farmers" },
       { name: "Monitoring Ledger", href: "/dashboard/monitoring" },
     ],
     resources: [
-      { name: "Developer API", href: "/api" },
-      { name: "Documentation", href: "/api" },
+      { name: "Developer API", href: "/#api-docs" },
+      { name: "Documentation", href: "/#api-docs" },
       { name: "ESG Reporting Docs", href: "/#" },
       { name: "Carbon Guidelines", href: "/#" },
     ],
